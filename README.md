@@ -1,4 +1,4 @@
 # TP Gamification adaptative
 
-### BRUNEAU Richard - VASLIN Pierre P1914433
+### BRUNEAU Richard P1402059 - VASLIN Pierre P1914433
 
