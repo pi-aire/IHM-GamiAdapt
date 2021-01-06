@@ -1,9 +1,11 @@
-import numpy
+import numpy as np
 import pandas
+from pandas.core.frame import DataFrame
 
-EPSILON = 0.05
+EPSILON = 0.1
+STUDENT = "elevebf12"
 
-def preprocess(pcs, pvs, epsilon):
+def preprocess(pcs:DataFrame, pvs:DataFrame, epsilon) -> DataFrame:
     """les coeficients avec un p value >= epsilon sont mis à zéro
         cela supprime leurs influences
     Args:
@@ -13,15 +15,14 @@ def preprocess(pcs, pvs, epsilon):
     Returns:
         [DataFrame]: [description]
     """
-    if pcs.shape != pvs.shape:
-        exit(-1)
+    # On supprime les labels sur la première ligne/colomne
     for i in range(pcs.shape[0]):
         for j in range(pcs.shape[1]):
             if pvs.iloc[i,j] >= epsilon: 
-                pcs.iloc[i,j] = 0.0
+                pcs.iloc[i,j] = np.float64()        
     return pcs
 
-def strategy(vecteur) -> float:
+def strategy(vecteur:DataFrame) -> float:
     """Calcul une valeur en fonction du vecteur donné en paramètre
 
     Args:
@@ -30,36 +31,37 @@ def strategy(vecteur) -> float:
     Returns:
         float: valeur pour un type d'élément de jeu
     """
-    pass
+    return vecteur.sum().iloc[0]
 
 def main() -> None:
-    feels = ["achiever","player","socialiser","freeSpirit","disruptor","philanthropist"]
+    profile = ["achiever","player","socialiser","freeSpirit","disruptor","philanthropist"]
+    motiv = ["MI","ME","amotI"]
     
     userStats = pandas.read_csv("../R Code/userStats.csv",sep=";")
-    student = userStats.loc[userStats["User"] == "elevebf12"]
-    student = student[feels]
-    print(student)
-    
+    student = userStats.loc[userStats["User"] == STUDENT]
+    # print(student)
+    # student = student[profile+motiv]
     # Chargement des matrices PLS
     hexads = dict()
     motivations = dict()
     for element in ["avatar","badges","progress","ranking","score","timer"]:
-        hexads[element] = dict()
-        motivations[element] = dict()
-        for mat in ["PathCoefs","pVals"]: # a modifié car prépocessing
-            hexads[element][mat] = pandas.read_csv("../R Code/R Code/PLS/Hexad/"+ element+mat +".csv",sep=";")
-            motivations[element][mat] = pandas.read_csv("../R Code/R Code/PLS/Motivation/"+ element+mat +".csv",sep=";")
-    # print(hexads)
-    ## multiplication de matrice pcs après preporcess et tranpot de student, 
-    # avec ça on obtient un vecteur (MIVar,MEVar,amotVar), 
-    # aprés définir (strtégie) une valeur avec les trois valeurs puis avec la valeur obtenu la compare au valeur des autre type (ex: badges, progress, etc) et on les classes
-    # Creation du vecteur d'affinité pour son profil Hexad
+        pathCoefsH = pandas.read_csv("../R Code/R Code/PLS/Hexad/"+ element +"PathCoefs.csv",sep=";",header=0,index_col=0)
+        pValsH = pandas.read_csv("../R Code/R Code/PLS/Hexad/"+ element +"pVals.csv",sep=";",header=0,index_col=0)
+        pathCoefsM = pandas.read_csv("../R Code/R Code/PLS/Motivation/"+ element +"PathCoefs.csv",sep=";",header=0,index_col=0)
+        pValsM = pandas.read_csv("../R Code/R Code/PLS/Motivation/"+ element +"pVals.csv",sep=";",header=0,index_col=0)
+        hexads[element] = preprocess(pathCoefsH,pValsH,EPSILON)
+        motivations[element] = preprocess(pathCoefsM,pValsM,EPSILON)
+    # print(hexads["avatar"])
     
-    # Creation du vecteur d'affinité pour son profil de motivation
-
-
-# vecteur
-# [valueAvatar, valueBadge, etc...]
+    # multiplication de matrice pcs après preporcess et le profile utilisateur
+    for element in ["avatar","badges","progress","ranking","score","timer"]:
+        hexads[element] = hexads[element].dot(student[profile].T)
+        hexads[element] = strategy(hexads[element])
+        # motivations[element] = motivations[element].dot(student.T)
+    
+    #ON réalise le classement
+    hexads = {key: value for key, value in sorted(hexads.items(), key=lambda item: -item[1])}   
+    print(f"Vecteur d'affinité de {STUDENT} \n  pour son profil Hexad :\n   {hexads}")
 
 if __name__ == "__main__":
     main()
