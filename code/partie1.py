@@ -24,14 +24,16 @@ def preprocess(pcs:DataFrame, pvs:DataFrame, epsilon) -> DataFrame:
 
 def strategy(vecteur:DataFrame) -> float:
     """Calcul une valeur en fonction du vecteur donné en paramètre
-
+        Formule MI + ME - amotI
+        On peut soustraire amotI car amotI est positif
     Args:
         vecteur ([type]): `len(vecteur)= 3`, contenants (MIVar,MEVar,amotVar) d'un élément de jeu d'un joueur
 
     Returns:
         float: valeur pour un type d'élément de jeu
     """
-    return vecteur.sum().iloc[0]
+    vecteur = vecteur.squeeze()
+    return vecteur.iloc[0] + vecteur.iloc[1] - vecteur.iloc[2] 
 
 def main() -> None:
     profile = ["achiever","player","socialiser","freeSpirit","disruptor","philanthropist"]
@@ -39,8 +41,12 @@ def main() -> None:
     
     userStats = pandas.read_csv("../R Code/userStats.csv",sep=";")
     student = userStats.loc[userStats["User"] == STUDENT]
-    # print(student)
-    # student = student[profile+motiv]
+    # Calcul des motivations innitiales
+    student["MI"] = student["micoI"].iloc[0] + student[" miacI"].iloc[0] + student[" mistI"].iloc[0]
+    student["ME"] = student[" meidI"].iloc[0] + student[" meinI"].iloc[0] + student[" mereI"].iloc[0]
+    student["amotI"] = student[" amotI"]
+    student = student[profile+motiv]
+    print(student)
     # Chargement des matrices PLS
     hexads = dict()
     motivations = dict()
@@ -57,11 +63,14 @@ def main() -> None:
     for element in ["avatar","badges","progress","ranking","score","timer"]:
         hexads[element] = hexads[element].dot(student[profile].T)
         hexads[element] = strategy(hexads[element])
-        # motivations[element] = motivations[element].dot(student.T)
+        motivations[element] = motivations[element].dot(student[motiv].T)
+        motivations[element] = strategy(motivations[element])
     
     #ON réalise le classement
     hexads = {key: value for key, value in sorted(hexads.items(), key=lambda item: -item[1])}   
+    motivations = {key: value for key, value in sorted(motivations.items(), key=lambda item: -item[1])}   
     print(f"Vecteur d'affinité de {STUDENT} \n  pour son profil Hexad :\n   {hexads}")
+    print(f"  pour son profil Motivation :\n   {motivations}")
 
 if __name__ == "__main__":
     main()
