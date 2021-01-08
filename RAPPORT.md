@@ -5,9 +5,9 @@
 pathCoefs = influence
 pVals = p.values = marge d'erreur
 
-MI  = motivation intrinsèque      
+MI  = motivation intrinsèque
 MIVar = variation motivation intrinsèque (variation sur les 10 séances)
-ME = motivation extrinsèque 
+ME = motivation extrinsèque
 MEVar = variation motivation extrinsèque (variation sur les 10 séances)
 amotI = la non motivation
 amotVar = variation la non motivation (variation sur les 10 séances)
@@ -25,13 +25,17 @@ PLS/Hexad -> profil de joueur HEXAD
 
 Nous allons considérer les matrices ./Hexad/avatarPathCoefs ( ci-dessous *Matrice 1*) et /Hexad/avatarpVals (ci-dessous *Matrice 2*). La matrice pVals permet de relativiser les informations issues de la première. 
 Nous sommes donc dans le cadre de joueurs qui ont eu à leur disposition l'élément avatar. 
-On constate pour la variation de la motivation intrinsèque, il n'est pas possible de déterminer quelque chose de signification puisque dans la matrice 2, les valeurs de la ligne MIVar sont toutes supérieur à 0,1. En revanche, pour la motivation extrinsèque, nous constatons que des données sont exploitables. On constate par exemple, que la caractéristique "player" a eu une influence de près de 50% avec une fiabilité en la valeur assez haute (0,003). Avec une précision plus faible on peut constater que le profil "socialiser" a une influence négative sur la ME. Les profils "freeSpirit", "disruptor" et "philantropist" ont quand a eux une fiabilité faible. Pour la variation de l'amotivation, on ne peut se concentrer uniquement sur le socialiser qui provoque une variation de près de 30%. 
+On constate pour la variation de la motivation intrinsèque, il n'est pas possible de déterminer quelque chose de significatif puisque dans la matrice 2, les valeurs de la ligne MIVar sont toutes supérieur à 0,1. En revanche, pour la motivation extrinsèque, nous constatons que des données sont exploitables. On constate par exemple, que la caractéristique "player" a eu une influence de près de 50% avec une fiabilité en la valeur assez haute (0,003). Avec une précision plus faible on peut constater que pour le profil "socialiser" cela a eu une influence négative sur la ME. Les profils "achiever", "freeSpirit", "disruptor" et "philantropist" ont une fiabilité trop faible pour pouvoir garder des informations. Pour la variation de l'amotivation, on ne peut se concentrer uniquement sur le socialiser qui provoque une variation de près de 30%. 
 
-On constate que la fiabilité augmente pour les valeurs très franches, en revanche quand la variation est proche de 0, la fiabilité est faible. 
+On constate que la fiabilité augmente pour les valeurs très franches, en revanche quand la variation est proche de 0, la fiabilité est faible.
 
 ### Etape 3 : Recommendations à partir des matrices PLS
 
-Lien vers le code 
+Notre code est disponible dans le fichier [code/partie1.py](https://github.com/pi-aire/IHM-GamiAdapt/blob/master/code/partie1.py). A l'intérieur du fichier nous avons défini une variable globale qui permet de choisir l'étudiant souhaité. Pour calculer les motivations initiales nous avons pris le partie de simplement sommer les composantes caractéristiques de chacune des motivations. *Exemple: Motivation Intrinsèque Initiale = micoI + miacI + mistI*
+
+Avant de chercher à déterminer le profil, nous avons pris la décision de réaliser une étape de pré-traitement afin de remplacer par 0 les valeurs avec une incertitude trop élevée. Au cours de notre exécution, nous avons fixé ce seuil à 0.1. A nouveau, nous avons déclaré une variable globale `EPSILON` afin de pouvoir paramétrer cela aisément. 
+
+Parler des résultats de chaque vecteur
 
 Justifications
 
