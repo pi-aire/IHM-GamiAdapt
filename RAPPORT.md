@@ -33,11 +33,11 @@ On constate que la fiabilité augmente pour les valeurs très franches, en revan
 
 Notre code est disponible dans le fichier [code/partie1.py](https://github.com/pi-aire/IHM-GamiAdapt/blob/master/code/partie1.py). A l'intérieur du fichier nous avons défini une variable globale qui permet de choisir l'étudiant souhaité. Pour calculer les motivations initiales nous avons pris le partie de simplement sommer les composantes caractéristiques de chacune des motivations. *Exemple: Motivation Intrinsèque Initiale = micoI + miacI + mistI*
 
-Avant de chercher à déterminer le profil, nous avons pris la décision de réaliser une étape de pré-traitement afin de remplacer par 0 les valeurs avec une incertitude trop élevée. Au cours de notre exécution, nous avons fixé ce seuil à 0.1. A nouveau, nous avons déclaré une variable globale `EPSILON` afin de pouvoir paramétrer cela aisément. 
+Avant de chercher à déterminer le profil, nous avons pris la décision de réaliser une étape de pré-traitement afin de remplacer par 0 les valeurs avec une incertitude trop élevée. Au cours de notre exécution, nous avons fixé ce seuil à 0.1. A nouveau, nous avons déclaré une variable globale `EPSILON` afin de pouvoir paramétrer cela aisément.
 
-Parler des résultats de chaque vecteur
+Pour déterminer les vecteurs, nous avons décidé de ne pas accorder plus d'importance à l'une des deux motivations. Dans la fonction `strategy`, nous sommons la motivation intrinsèque et extrinsèque en déduisant l'amotivation. De cette façon, on s'assure que la stratégie se concentrera sur la motivation la plus élevée.
 
-Justifications
+TODO: Parler de la prise de risque quand les données sont négative ou égale à 0
 
 ## Deuxième partie : Algorithme d'adaptation 
 
