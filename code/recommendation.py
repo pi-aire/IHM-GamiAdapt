@@ -26,11 +26,31 @@ def recommendation(student,epsilon) -> str:
         for key in vecteurHexad:
             tmp = vecteurHexad[key] + vecteurMotiv[key]
             if (tmp > maxv) or \
-                (tmp == maxv and random.random() > 0.5):
+                (tmp == maxv and random.random() < 0.5):
                 maxv = tmp
                 maxLabel = key
         return maxLabel
+    
+def recommendation2(student,epsilon) -> str:
+    # En fonction du classe dans les vecteurs
+        vecteurHexad:dict
+        vecteurMotiv:dict
+        vecteurHexad, vecteurMotiv = va.vecteurs(student,epsilon)
+        rank = vecteurHexad.copy()
+        for r in rank.keys():
+            rank[r] = 0
+        
+        hexad = [*vecteurHexad.keys()]
+        motiv = [*vecteurMotiv.keys()]
+        size = len(hexad)
+        for p in range(size):
+            rank[hexad[p]] += size - p
+            rank[motiv[p]] += size - p
+        
+        return max(rank, key=rank.get)
 
 if __name__ == "__main__":
     reco = recommendation(STUDENT,EPSILON)
     print(f"Recommendation d'élément de jeu pour {STUDENT} : {reco}")
+    reco = recommendation2(STUDENT,EPSILON)
+    print(f"Recommendation2 d'élément de jeu pour {STUDENT} : {reco}")

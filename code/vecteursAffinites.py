@@ -1,11 +1,14 @@
 import numpy as np
+from numpy.core.fromnumeric import mean
 import pandas
 from pandas.core.frame import DataFrame
 import warnings
 warnings.filterwarnings('ignore')
 
-EPSILON = 0.05
+EPSILON = 0.1
 STUDENT = ["elevebf12","eleveig14","elevekg10","elevelf04"]
+PROFILE = ["achiever","player","socialiser","freeSpirit","disruptor","philanthropist"]
+MOTIV = ["MI","ME","amotI"]
 
 def preprocess(pcs:DataFrame, pvs:DataFrame, epsilon) -> DataFrame:
     """ Les coeficients avec un p value >= epsilon sont mis à zéro
@@ -24,6 +27,17 @@ def preprocess(pcs:DataFrame, pvs:DataFrame, epsilon) -> DataFrame:
                 pcs.iloc[i,j] = np.float64()        
     return pcs
 
+# def fusion(matrice, student,columns):
+#     MIVar = []
+#     MEVar = []
+#     amotVar = []
+#     for column in columns:
+#         MIVar.append(matrice.loc["MIVar",column] * student[column].iloc[0])
+#         MEVar.append(matrice.loc["MEVar",column] * student[column].iloc[0])
+#         amotVar.append(matrice.loc["amotVar",column] * student[column].iloc[0])
+#     vect = [sum(MIVar),sum(MEVar),sum(amotVar)]
+#     return vect
+
 def strategy(vecteur:DataFrame) -> float:
     """ Calcule une valeur en fonction du vecteur donné en paramètre
         Formule MI + ME - amotI
@@ -36,6 +50,7 @@ def strategy(vecteur:DataFrame) -> float:
     """
     vecteur = vecteur.squeeze()
     return vecteur.iloc[0] + vecteur.iloc[1] - vecteur.iloc[2] 
+    # return vecteur[0] + vecteur[1] - vecteur[2]
 
 def vecteurs(studentID,epsilon) -> tuple:
     """Retours les vecteurs d'affinités du profile heaxad et motivation
@@ -44,8 +59,8 @@ def vecteurs(studentID,epsilon) -> tuple:
         studentID (str): id de l'étudiant
         epsilon (float): niveau d'incertitude maximum
     """
-    profile = ["achiever","player","socialiser","freeSpirit","disruptor","philanthropist"]
-    motiv = ["MI","ME","amotI"]
+    # profile = ["achiever","player","socialiser","freeSpirit","disruptor","philanthropist"]
+    # motiv = ["MI","ME","amotI"]
     
     userStats = pandas.read_csv("../R Code/userStats.csv",sep=";")
     student = userStats.loc[userStats["User"] == studentID]
@@ -53,7 +68,8 @@ def vecteurs(studentID,epsilon) -> tuple:
     student["MI"] = student["micoI"].iloc[0] + student[" miacI"].iloc[0] + student[" mistI"].iloc[0]
     student["ME"] = student[" meidI"].iloc[0] + student[" meinI"].iloc[0] + student[" mereI"].iloc[0]
     student["amotI"] = student[" amotI"]
-    student = student[profile+motiv]
+    
+    student = student[PROFILE+MOTIV]
     # Chargement des matrices PLS
     hexads = dict()
     motivations = dict()
@@ -68,9 +84,11 @@ def vecteurs(studentID,epsilon) -> tuple:
     
     # multiplication de matrice pcs après preporcess et le profile utilisateur
     for element in ["avatar","badges","progress","ranking","score","timer"]:
-        hexads[element] = hexads[element].dot(student[profile].T)
+        hexads[element] = hexads[element].dot(student[PROFILE].T)
+        # hexads[element] = fusion(hexads[element],student,PROFILE)
         hexads[element] = strategy(hexads[element])
-        motivations[element] = motivations[element].dot(student[motiv].T)
+        motivations[element] = motivations[element].dot(student[MOTIV].T)
+        # motivations[element] = fusion(motivations[element],student,MOTIV)
         motivations[element] = strategy(motivations[element])
     
     #On réalise le classement
