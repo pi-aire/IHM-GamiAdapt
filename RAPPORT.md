@@ -1,7 +1,18 @@
-# TP Gamification adaptative 
-
-### BRUNEAU Richard - VASLIN Pierre P1914433
-
+---
+title: "TP Gamification adaptative"
+author: BRUNEAU Richard - VASLIN Pierre
+date: 18 Janvier 2021
+geometry: margin=2.5cm
+output: 
+    pdf_document:
+        fig_caption: yes
+header-includes:
+- | 
+    ```{=latex}
+    \usepackage{amsmath,amsfonts,euscript,tikz,fancyhdr,float}
+    \floatplacement{figure}{H}
+    ```
+---
 ## Première partie : Recommandations à partir de profils
 
 ### Etape 2 : Analyses PLS (PLS Path modeling)
