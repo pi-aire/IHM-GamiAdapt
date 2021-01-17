@@ -3,3 +3,7 @@
 .RData
 .Ruserdata
 .vscode/
+env/
+code/__pycache__/recommendation.cpython-37.pyc
+code/__pycache__/vecteursAffinites.cpython-37.pyc
+code/__pycache__/vecteursAffinites.cpython-39.pyc

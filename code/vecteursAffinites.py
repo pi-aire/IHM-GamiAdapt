@@ -11,7 +11,7 @@ PROFILE = ["achiever","player","socialiser","freeSpirit","disruptor","philanthro
 MOTIV = ["MI","ME","amotI"]
 
 def preprocess(pcs:DataFrame, pvs:DataFrame, epsilon) -> DataFrame:
-    """ Les coeficients avec un p value >= epsilon sont mis à zéro
+    """ Les coefficients avec un p value >= epsilon sont mis à zéro
         cela supprime leurs influences
     Args:
         pcs ([DataFrame]): matrice pathCoe
@@ -20,23 +20,26 @@ def preprocess(pcs:DataFrame, pvs:DataFrame, epsilon) -> DataFrame:
     Returns:
         [DataFrame]: Avec les valeurs dont l'incertitude est trop grandeà 
     """
-    # On supprime les labels sur la première ligne/colomne
+    # On supprime les labels sur la première ligne/colonne
     for i in range(pcs.shape[0]):
         for j in range(pcs.shape[1]):
             if pvs.iloc[i,j] >= epsilon: 
                 pcs.iloc[i,j] = np.float64()        
     return pcs
 
-# def fusion(matrice, student,columns):
-#     MIVar = []
-#     MEVar = []
-#     amotVar = []
-#     for column in columns:
-#         MIVar.append(matrice.loc["MIVar",column] * student[column].iloc[0])
-#         MEVar.append(matrice.loc["MEVar",column] * student[column].iloc[0])
-#         amotVar.append(matrice.loc["amotVar",column] * student[column].iloc[0])
-#     vect = [sum(MIVar),sum(MEVar),sum(amotVar)]
-#     return vect
+def fusion(matrice, student,columns):
+    """ Fusionne les statistiques entre elle à l'aide d'une moyenne 
+        (N'est plus utilisée, cf Rapport, partie 2, étape 4)
+    """
+    MIVar = []
+    MEVar = []
+    amotVar = []
+    for column in columns:
+        MIVar.append(matrice.loc["MIVar",column] * student[column].iloc[0])
+        MEVar.append(matrice.loc["MEVar",column] * student[column].iloc[0])
+        amotVar.append(matrice.loc["amotVar",column] * student[column].iloc[0])
+    vect = [sum(MIVar),sum(MEVar),sum(amotVar)]
+    return vect
 
 def strategy(vecteur:DataFrame) -> float:
     """ Calcule une valeur en fonction du vecteur donné en paramètre
@@ -53,7 +56,7 @@ def strategy(vecteur:DataFrame) -> float:
     # return vecteur[0] + vecteur[1] - vecteur[2]
 
 def vecteurs(studentID,epsilon) -> tuple:
-    """Retours les vecteurs d'affinités du profile heaxad et motivation
+    """Retours les vecteurs d'affinités du profile hexad et motivation
         d'un étudiant
     Args:
         studentID (str): id de l'étudiant
@@ -64,7 +67,7 @@ def vecteurs(studentID,epsilon) -> tuple:
     
     userStats = pandas.read_csv("../R Code/userStats.csv",sep=";")
     student = userStats.loc[userStats["User"] == studentID]
-    # Calculs des motivations innitiales
+    # Calcule des motivations initiales
     student["MI"] = student["micoI"].iloc[0] + student[" miacI"].iloc[0] + student[" mistI"].iloc[0]
     student["ME"] = student[" meidI"].iloc[0] + student[" meinI"].iloc[0] + student[" mereI"].iloc[0]
     student["amotI"] = student[" amotI"]
@@ -80,7 +83,6 @@ def vecteurs(studentID,epsilon) -> tuple:
         pValsM = pandas.read_csv("../R Code/R Code/PLS/Motivation/"+ element +"pVals.csv",sep=";",header=0,index_col=0)
         hexads[element] = preprocess(pathCoefsH,pValsH,epsilon)
         motivations[element] = preprocess(pathCoefsM,pValsM,epsilon)
-    # print(hexads["avatar"])
     
     # multiplication de matrice pcs après preporcess et le profile utilisateur
     for element in ["avatar","badges","progress","ranking","score","timer"]:

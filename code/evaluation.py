@@ -1,57 +1,55 @@
 from datetime import date
 
 from numpy.lib.function_base import median
+from scipy import stats
 import recommendation as reco
 from datetime import datetime, timezone
 import pandas
 import numpy as np
 
-AMOT = " amotVar"
-MOTIVATIONSVAR = [" micoVar", " miacVar", " mistVar", " meidVar", " meinVar", " mereVar", " amotVar"]
-INFOS = ["Time","CorrectCount","FullyCompletedLessonCount"]
-NORMALIZE = ["Time","CorrectCount","FullyCompletedLessonCount","MotVar"]
+INFOS = ["Time","CorrectCount","FullyCompletedLessonCount","MiVar","MeVar"," amotVar"]
 EPSILON = 0.05
-SCORE_MIN = 0.3 # Faire varier le seuil
 
 def toSecond(date):
     dt = datetime.strptime(date, "%H:%M:%S")
     return (dt.hour * 3600) + (dt.minute * 60) + dt.second
     
 def evaluate():
-    userStats = pandas.read_csv("../R Code/userStats.csv",sep=";")
-    # userStats = userStats.head(10)
-    userStats["Time"] = userStats["Time"].apply(toSecond)
-    userStats[AMOT] = userStats[AMOT] * -1
-    userStats["MotVar"] = userStats[MOTIVATIONSVAR].sum(axis=1)
-    
-    #Normalization
-    for colum in NORMALIZE:
-        userStats[colum] = userStats[colum] / userStats[colum].abs().max() 
+    """ Fonction qui réalise l'évaluation """
+    userStats = pandas.read_csv("./R Code/userStats.csv",sep=";")
+    #userStats = pandas.read_csv("../R Code/userStats.csv",sep=";")
 
-    # Score
-    userStats["Score"] = userStats[NORMALIZE].sum(axis=1)
-    # print(userStats["Score"])
-    # Stisfaction du joueur
-    # mean = userStats["Score"].mean()
-    # print(median)
-    userStats["Satisfied"] = userStats["Score"] > SCORE_MIN
+    userStats["Time"] = userStats["Time"].apply(toSecond) # On converti le temps en seconde 
+    userStats["MiVar"] = userStats[[" micoVar", " miacVar", " mistVar"]].sum(axis=1)
+    userStats["MeVar"] = userStats[[" meidVar", " meinVar", " mereVar"]].sum(axis=1)
     
     # Recommendation
     students = userStats["User"]
     recommendations = []
-    print("@Richard attend le calcul peut mettre du temps 😉, le programme n'est pas planté")
+    print("L'exécution du programme peut prendre un peu de temps.")
     for student in students:
         recommendations.append(reco.recommendation(student,EPSILON))
     userStats["Recomendation"] = recommendations
     
-    # On regarde si la recommendation et la même que l'utilisateur à fait
+    # On regarde si la recommendation est la même que dans la colonne "GameElement"
     userStats["Adapted"] = userStats["Recomendation"] == userStats["GameElement"]
-    # On évalue le recommendation en fonction du score
-    userStats["GoodRecomendation"] = (userStats["Adapted"] & userStats["Satisfied"]) | \
-        (np.logical_not(userStats["Adapted"]) & userStats["Satisfied"])
-    total = userStats["GoodRecomendation"].sum()
-    print(f"Nombre de bonne et potentiellement bonne recommendation: {total}/{userStats.shape[0]} \n Bonjour 🙋‍ @Richard il faut prendre le résultat avec des pincettes, regarde bien la manière de calculer les scores\n et le SCORE_MIN qui est le seuil de satisfaction")
     
+    #On réparti les groupes
+    # Groupe adapté
+    groupeAdapted = userStats.loc[userStats["Adapted"]]
+    # Groupe non adapté
+    groupeNotAdapted = userStats.loc[userStats["Adapted"] == False]
+    
+    print(f"Nombre de recommendations correspondantes {groupeAdapted.shape[0]}")
+    print(f"Nombre de recommendations différente {groupeNotAdapted.shape[0]}")
+    
+    del groupeAdapted["Adapted"]
+    del groupeNotAdapted["Adapted"]
+    
+    # On calcule les t-tests value
+    for column in INFOS:
+        print(f"T-test variable : {column}")
+        print(stats.ttest_ind(groupeAdapted[column],groupeNotAdapted[column]))
     
 if __name__ == "__main__":
     evaluate()
