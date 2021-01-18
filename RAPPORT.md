@@ -21,7 +21,7 @@ header-includes:
 
 Nous allons considérer les matrices ./Hexad/avatarPathCoefs ( ci-dessous *Matrice 1*) et ./Hexad/avatarpVals (ci-dessous *Matrice 2*). La matrice pVals permet de relativiser les informations issues de la première. 
 Nous sommes donc dans le cadre de joueurs qui ont eu à leur disposition l'élément avatar. 
-On constate que pour la variation de la motivation intrinsèque, il n'est pas possible de déterminer quelque chose de significatif puisque dans la matrice 2, les valeurs de la ligne MIVar sont toutes supérieur à 0,1. En revanche, pour la motivation extrinsèque, nous constatons que des données sont exploitables. On constate par exemple, que la caractéristique "player" a eu une influence de près de 50% avec une fiabilité en la valeur assez haute (0,003). Avec une précision plus faible on peut constater que pour le profil "socialiser" cela a eu une influence négative sur la ME. Les profils "achiever", "freeSpirit", "disruptor" et "philantropist" ont une fiabilité trop faible pour pouvoir garder des informations. Pour la variation de l'amotivation, on ne peut se concentrer uniquement sur le socialiser qui provoque une variation de près de 30%. 
+On constate que pour la variation de la motivation intrinsèque, il n'est pas possible de déterminer quelque chose de significatif puisque dans la matrice 2, les valeurs de la ligne MIVar sont toutes supérieurs à 0,1. En revanche, pour la motivation extrinsèque, nous constatons que des données sont exploitables. On constate par exemple, que la caractéristique "player" a eu une influence de près de 50% avec une fiabilité en la valeur assez haute (0,003). Avec une précision plus faible on peut constater que pour le profil "socialiser" cela a eu une influence négative sur la ME. Les profils "achiever", "freeSpirit", "disruptor" et "philantropist" ont une fiabilité trop faible pour pouvoir garder des informations. Pour la variation de l'amotivation, on ne peut se concentrer uniquement sur le socialiser qui provoque une variation de près de 30%. 
 
 On constate que la fiabilité augmente pour les valeurs très franches, en revanche quand la variation est proche de 0, la fiabilité est faible.
 
@@ -87,20 +87,37 @@ Fin du traitement
 
 Notre code est disponible dans le fichier [code/recommendation.py](https://github.com/pi-aire/IHM-GamiAdapt/blob/master/code/recommendation.py). Il s'occupe d'appeler le fichier de la première partie afin de générer les vecteurs d'affinités et de déterminer quel est l'élément de jeu le plus intéressant pour l'étudiant. L'étudiant et la précision sont des variables globales fixées à l'intérieur du fichier.
 
-Nous avons constaté que pour l'ensemble des élèves, notre algorithme de recommandation choisit l'élément "avatar". 
+Nous avons constaté sur l'ensemble des élèves, notre algorithme de recommandation sélectionne fréquemment l'élément "avatar" (214 fois sur 258 étudiants). 
 
 ### Etape 4 : Evaluation de la pertinence
 
 Pour l'évaluation, notre code est disponible dans le fichier [code/evaluation.py](https://github.com/pi-aire/IHM-GamiAdapt/blob/master/code/evaluation.py). Pour chaque élève, nous avons effectué une recommandation. Nous avons avons ensuite séparé les élèves en fonction de l'élément de jeu qu'ils ont obtenu.
 
+**Les résultats:**
+```
+Nombre de recommendations correspondantes 40
+Nombre de recommendations différente 218
+T-test variable : Time
+Ttest_indResult(statistic=0.3120572187667718, pvalue=0.7552510515342136)
+T-test variable : CorrectCount
+Ttest_indResult(statistic=0.020785480495290384, pvalue=0.9834329713880039)
+T-test variable : FullyCompletedLessonCount
+Ttest_indResult(statistic=-0.43550528439202024, pvalue=0.6635626683054437)
+T-test variable : MiVar
+Ttest_indResult(statistic=1.8077289108220995, pvalue=0.07182236698157281)
+T-test variable : MeVar
+Ttest_indResult(statistic=-0.3439330758033224, pvalue=0.7311789409559865)
+T-test variable :  amotVar
+Ttest_indResult(statistic=0.19182458434294583, pvalue=0.8480316779143454)
+```
 Le groupe avec l'élément de jeu recommandé contient 40 élèves, tant dit que l'autre groupe en contient 218. Nous constatons que pour l'ensemble des statistiques la pvalue est supérieure à 0,1 et que nous ne pouvons pas conclure sur la réussite ou non de notre recommandation.
 
-Suite a cette absence de conclusion, nous avons essayé diverses approches afin d'obtenir des résultats exploitables. Nous avons changé notre façon de normalisé les valeurs du vecteur hexads en passant d'une normalisation entre 0 et 1 à une normalisation entre -1 et 1. La pvalue a légèrement diminuée et c'est cela qui explique que nous avons conservé cette normalisation, mais elle reste trop élevée pour pouvoir établir une quelconque conclusion. 
+Suite a cette absence de conclusion, nous avons essayé diverses approches afin d'obtenir des résultats exploitables. Nous avons changé notre façon de normalisé les valeurs du vecteur hexads et du vecteur de motivation en passant d'une normalisation entre 0 et 1 à une normalisation entre -1 et 1. La pvalue a légèrement diminuée et c'est cela qui explique que nous avons conservé cette normalisation, mais elle reste trop élevée pour pouvoir établir une quelconque conclusion. 
 
-Nous avons essayé plusieurs stratégies, à l'origine, nous sommions la motivation intrasèque à la motivation extrinsèque et nous soustrayons l'amotivation. Nous avons essayé de soustraire deux fois l'amotivation, sans succès. Nous avons donc essayé d'ajouter la motivation, mais à nouveau, les résultats n'étais pas concluants. Nous somme donc revenu sur notre idée de départ.
+Nous avons essayé plusieurs stratégies, à l'origine, nous sommions la motivation intrinsèque à la motivation extrinsèque et nous soustrayons l'amotivation. Nous avons essayé de soustraire deux fois l'amotivation, sans succès. Nous avons donc essayé d'ajouter l'amotivation, mais à nouveau, les résultats n'étaient pas concluants. Nous sommes donc revenu sur notre idée de départ.
 
-Ensuite, nous avons revu notre façon de sélectionner l'élément. L'implémentation est disponible dans le fichier [code/recommendation.py](https://github.com/pi-aire/IHM-GamiAdapt/blob/master/code/recommendation.py) avec la fonction `recommendation2`. Ce programme attribue 6 points au premier élément de jeu de chaque vecteur, 5 au second, 4 au troisième et ainsi de suite. Ensuite, nous choisissons l'élément de jeu qui a obtenu le plus de points. Malheureusement, cette seconde méthode de sélection n'a pas permis d'obtenir de meilleurs résultats. Comme vous pouvez le voir en exécutant le fichier [code/recommendation.py](https://github.com/pi-aire/IHM-GamiAdapt/blob/master/code/recommendation.py), cette méthode offre un résultat parfois différent.
+Ensuite, nous avons revu notre façon de sélectionner l'élément. L'implémentation est disponible dans le fichier [code/recommendation.py](https://github.com/pi-aire/IHM-GamiAdapt/blob/master/code/recommendation.py) avec la fonction `recommendation2`. Ce programme attribue 6 points au premier élément de jeu de chaque vecteur, 5 au second, 4 au troisième et ainsi de suite. Nous sommons pour chaque élément de jeu le nombre de points obtenu avec le vecteur d'affinité Hexad et avec le vecteur d'affinité de Motivation. Ensuite, nous choisissons l'élément de jeu qui a obtenu le plus de points. Malheureusement, cette seconde méthode de sélection n'a pas permis d'obtenir de meilleurs résultats. Comme vous pouvez le voir en exécutant le fichier [code/recommendation.py](https://github.com/pi-aire/IHM-GamiAdapt/blob/master/code/recommendation.py), cette méthode offre un résultat parfois différent.
 
-Nous avons ensuite changé la façon dont nous déterminions les vecteurs d'affinités. Nous réalisons une multiplication de matrice entre la matrice de coefficient de l'élément et la transposé des statistique de l'étudiant. Nous avons essayé en ajoutant une fusion des colonnes de statistiques à l'aide d'une moyenne (code disponible dans [code/vecteursAffinites.py](https://github.com/pi-aire/IHM-GamiAdapt/blob/master/code/vecteursAffinites.py)), mais à nouveau sans réussite. Nous avons donc supprimé cette étape de fusion.
+Nous avons ensuite changé la façon dont nous déterminions les vecteurs d'affinités. Nous réalisons une multiplication de matrice entre la matrice de coefficient de l'élément et la transposé des statistiques de l'étudiant. Nous avons essayé une autre méthode en multipliant d'abord chaque colonne par l'attribut qui lui correspond(présent dans les statistiques de l'étudiant), on réalise ensuite une fusion des colonnes de statistiques à l'aide d'une moyenne (code disponible dans [code/vecteursAffinites.py](https://github.com/pi-aire/IHM-GamiAdapt/blob/master/code/vecteursAffinites.py)), mais à nouveau sans réussite. Nous avons donc repris notre méthode de multiplication matricielle.
 
 Enfin, pour conclure sur nos expérimentations, nous avons également joué avec la variable epsilon afin d'être plus ou moins exigeant sur les pValue, mais nous n'avons pas constaté de changements significatifs.

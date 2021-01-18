@@ -16,8 +16,8 @@ def toSecond(date):
     
 def evaluate():
     """ Fonction qui réalise l'évaluation """
-    userStats = pandas.read_csv("./R Code/userStats.csv",sep=";")
-    #userStats = pandas.read_csv("../R Code/userStats.csv",sep=";")
+    # userStats = pandas.read_csv("./R Code/userStats.csv",sep=";")
+    userStats = pandas.read_csv("../R Code/userStats.csv",sep=";")
 
     userStats["Time"] = userStats["Time"].apply(toSecond) # On converti le temps en seconde 
     userStats["MiVar"] = userStats[[" micoVar", " miacVar", " mistVar"]].sum(axis=1)
@@ -30,7 +30,6 @@ def evaluate():
     for student in students:
         recommendations.append(reco.recommendation(student,EPSILON))
     userStats["Recomendation"] = recommendations
-    
     # On regarde si la recommendation est la même que dans la colonne "GameElement"
     userStats["Adapted"] = userStats["Recomendation"] == userStats["GameElement"]
     
